@@ -26,9 +26,13 @@ export const createDbClientMock = () => {
     returning: returningFn,
   });
 
+  returningFn.mockResolvedValue([createFakeTicket()]);
+
   return {
     dbClientMock: {
-      insert: insertFn,
+      db: {
+        insert: insertFn,
+      }
     },
     spies: {
       insertFn,

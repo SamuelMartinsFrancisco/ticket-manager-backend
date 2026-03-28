@@ -2,6 +2,8 @@ services:
 
   db:
     image: postgres
+    ports:
+      - "${DB_PORT}:5432"
     container_name: ${DB_NAME}
     restart: always
     # set shared memory limit when using docker compose

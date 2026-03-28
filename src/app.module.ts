@@ -1,8 +1,15 @@
 import { Module } from '@nestjs/common';
-import { DatabaseModule } from './infrastructure/database/database.module';
 import { TicketModule } from './modules/tickets/ticket.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [DatabaseModule, TicketModule],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      expandVariables: true,
+      envFilePath: '.env'
+    }),
+    TicketModule
+  ],
 })
-export class AppModule {}
+export class AppModule { }

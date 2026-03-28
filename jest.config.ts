@@ -1,4 +1,5 @@
 module.exports = {
+  testEnvironment: "node",
   moduleFileExtensions: ["js", "json", "ts"],
   rootDir: ".",
   testRegex: ".*\\.spec\\.ts$",
@@ -10,5 +11,9 @@ module.exports = {
   },
   collectCoverageFrom: ["src/**/*.(t|j)s"],
   coverageDirectory: "./coverage",
-  testEnvironment: "node",
+  maxWorkers: 2,
+  testPathIgnorePatterns: [
+    "<rootDir>/build/",
+    "<rootDir>/node_modules"
+  ],
 };

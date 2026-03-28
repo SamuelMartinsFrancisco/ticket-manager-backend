@@ -3,7 +3,7 @@ import { TicketService } from './ticket.service';
 import { createFakeTicket } from 'src/utils/test/mocks';
 import { TicketRepository } from './ticket.repository';
 
-const ticketMock = createFakeTicket();
+const fakeTicket = createFakeTicket();
 let ticketService: TicketService;
 let app: TestingModule;
 
@@ -15,7 +15,7 @@ describe('TicketService', () => {
         {
           provide: TicketRepository,
           useValue: {
-            create: jest.fn().mockResolvedValue(ticketMock),
+            create: jest.fn().mockResolvedValue(fakeTicket),
           },
         },
       ],
@@ -30,10 +30,10 @@ describe('TicketService', () => {
 
   describe('success scenarios', () => {
     it("should return the repository's response when receives valid data", async () => {
-      const {id, createdAt, ...newTicket} = ticketMock;
+      const {id, createdAt, ...newTicket} = fakeTicket;
 
       const result = await ticketService.create(newTicket);
-      expect(result).toEqual(ticketMock);
+      expect(result).toEqual(fakeTicket);
     });
   });
 });

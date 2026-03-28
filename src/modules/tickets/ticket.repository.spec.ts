@@ -1,42 +1,41 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { createDbClientMock, createFakeTicket } from 'src/utils/test/mocks';
-import { DbClientMock, DbClientSpies } from 'src/utils/test/types';
 import { TicketRepository } from './ticket.repository';
-import { DB_CLIENT } from 'src/infrastructure/database/database.provider';
+import { DatabaseService } from 'src/infrastructure/database/database.service';
 
 const ticketMock = createFakeTicket();
-
-let ticketRepository: TicketRepository;
-let dbClientMock: DbClientMock
-let spies: DbClientSpies;
+let app: TestingModule;
 
 describe('TicketRepository', () => {
-  beforeEach(async () => {
-    const dbMockFactory = createDbClientMock();
-    dbClientMock = dbMockFactory.dbClientMock;
-    spies = dbMockFactory.spies;
+  let ticketRepository: TicketRepository;
 
-    spies.returningFn.mockResolvedValue([ticketMock]);
+  beforeAll(async () => {
+    const { dbClientMock } = createDbClientMock();
 
-    const app: TestingModule = await Test.createTestingModule({
+    app = await Test.createTestingModule({
       providers: [
         TicketRepository,
         {
-          provide: DB_CLIENT,
+          provide: DatabaseService,
           useValue: dbClientMock,
-        },
+        }
       ],
     }).compile();
 
     ticketRepository = app.get<TicketRepository>(TicketRepository);
   });
 
+  afterAll(async () => {
+    await app.close();
+  })
+
   describe('success scenarios', () => {
     it("should return the db operation result when receives valid data", async () => {
-      const {id, createdAt, ...newTicket} = ticketMock;
+      const { id, createdAt, ...newTicket } = ticketMock;
 
       const result = await ticketRepository.create(newTicket);
       expect(result).toEqual(ticketMock);
+      expect(true).toBe(true);
     });
   });
 });
