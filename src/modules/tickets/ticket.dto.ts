@@ -1,8 +1,8 @@
 export enum IssueStatus {
-  NEW = 1,                    // Unassigned/Untouched
-  IN_PROGRESS = 2,            // Active work
-  WAITING = 3,                // Waiting on anyone (customer or vendor)
-  SOLVED = 4,                 // Done
+  NEW = 'Novo',                    // Unassigned/Untouched
+  IN_PROGRESS = 'Em Progresso',    // Active work
+  WAITING = 'Aguardando',          // Waiting on anyone (customer or vendor)
+  SOLVED = 'Resolvido',            // Done
 };
 
 export interface TicketDTO {
@@ -14,12 +14,10 @@ export interface TicketDTO {
   category: number,
   impact: number,
   urgency: number,
+  priority: number,
   createdAt: string,
   updatedAt?: string | null,
 };
 
 export type CreateTicketDTO =
-  Omit<TicketDTO, 'id' | 'createdAt' | 'updatedAt' | 'status'> &
-  Partial<Pick<TicketDTO, 'status'>>;
-
-export type CreateTicketDB = Omit<TicketDTO, 'id' | 'createdAt' | 'updatedAt'>;
+  Omit<TicketDTO, 'id' | 'createdAt' | 'updatedAt' | 'status' | 'priority'> & { status?: IssueStatus }

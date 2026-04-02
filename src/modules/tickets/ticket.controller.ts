@@ -4,7 +4,7 @@ import { CreateTicketDTO, TicketDTO } from './ticket.dto';
 
 @Controller('ticket')
 export class TicketController {
-  constructor(private readonly ticketService: TicketService) {}
+  constructor(private readonly ticketService: TicketService) { }
 
   @Post()
   async create(
@@ -13,7 +13,7 @@ export class TicketController {
     const { description, status, ...required } = data;
 
     const newTicket: CreateTicketDTO = {
-      title: required.title, 
+      title: required.title,
       authorId: required.authorId,
       category: required.category,
       impact: required.impact,
@@ -27,7 +27,7 @@ export class TicketController {
     if (status) {
       newTicket.status = status;
     }
-    
+
     return await this.ticketService.create(newTicket);
   }
 }

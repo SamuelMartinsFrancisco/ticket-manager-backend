@@ -4,14 +4,15 @@ import { TicketDTO, CreateTicketDTO, IssueStatus } from "./ticket.dto";
 
 @Injectable()
 export class TicketService {
-  constructor (private readonly ticketRepository: TicketRepository) {}
+  constructor(private readonly ticketRepository: TicketRepository) { }
 
-  async create(data: CreateTicketDTO): Promise<TicketDTO>  {
+  async create(data: CreateTicketDTO): Promise<TicketDTO> {
     const newTicket = {
       ...data,
-      status: IssueStatus.NEW
+      status: IssueStatus.NEW,
+      priority: data.impact + data.urgency,
     }
-    
+
     try {
       const result = await this.ticketRepository.create(newTicket);
 
