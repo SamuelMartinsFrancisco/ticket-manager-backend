@@ -95,12 +95,14 @@ Para começar a contribuir neste projeto, é necessário que você clone este re
   ctrl + c
   ```
 
-  Para remover o banco de dados totalmente (incluindo os dados)
+  [parar execução  do banco de dados - alternativas - escolha a que você preferir]
+
+  Remover o banco totalmente (incluindo os dados):
   ```bash
   docker compose down 
   ```
 
-  Para somente parar a execução do banco
+  Somente parar a execução do banco
   ```bash
   docker compose stop
 
