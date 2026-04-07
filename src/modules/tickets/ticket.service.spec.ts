@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TicketService } from './ticket.service';
-import { createFakeTicket } from 'src/utils/test/mocks';
+import { createFakeTicket } from '@/utils/test/mocks';
 import { TicketRepository } from './ticket.repository';
 
 const fakeTicket = createFakeTicket();
@@ -30,7 +30,7 @@ describe('TicketService', () => {
 
   describe('success scenarios', () => {
     it("should return the repository's response when receives valid data", async () => {
-      const {id, createdAt, ...newTicket} = fakeTicket;
+      const { id, createdAt, ...newTicket } = fakeTicket;
 
       const result = await ticketService.create(newTicket);
       expect(result).toEqual(fakeTicket);

@@ -1,6 +1,7 @@
 import { credentialsTable } from "./credential.schema";
 import { issueCategoriesTable, ticketsHistoryTable, ticketsTable } from "./ticket.schema"
 import { usersTable } from "./user.schema";
+import { PgTableWithColumns } from "drizzle-orm/pg-core";
 
 export const schema = {
   tickets: ticketsTable,

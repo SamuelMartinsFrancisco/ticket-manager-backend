@@ -7,9 +7,7 @@ export class TicketController {
   constructor(private readonly ticketService: TicketService) { }
 
   @Post()
-  async create(
-    @Body() data: CreateTicketDTO
-  ): Promise<TicketDTO> {
+  async create(@Body() data: CreateTicketDTO): Promise<TicketDTO> {
     const { description, status, ...required } = data;
 
     const newTicket: CreateTicketDTO = {

@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
-import { DatabaseService } from "src/infrastructure/database/database.service";
-import { ticketsTable } from "src/infrastructure/database/schema";
+import { DatabaseService } from "@/infrastructure/database/database.service";
+import { ticketsTable } from "@/infrastructure/database/schema";
 import { TicketDTO } from "./ticket.dto";
 
 type InsertTicket = typeof ticketsTable.$inferInsert;

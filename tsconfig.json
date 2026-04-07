@@ -1,5 +1,16 @@
 {
   "compilerOptions": {
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
+    },
+    "types": [
+      "jest",
+      "node",
+      "express",
+      "pg"
+    ],
     "module": "commonjs",
     "declaration": true,
     "removeComments": true,
@@ -9,7 +20,6 @@
     "target": "ES2021",
     "sourceMap": true,
     "outDir": "./dist",
-    "baseUrl": "./",
     "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": true,

@@ -26,7 +26,7 @@ Para começar a contribuir neste projeto, é necessário que você clone este re
   nvm install
   ```
 
-<br>
+<br><br>
 
 2. **Instalar as dependências**
 
@@ -34,12 +34,13 @@ Para começar a contribuir neste projeto, é necessário que você clone este re
   npm install
   ```
 
-<br>
+<br><br>
 
 3. **Criar arquivo .env**
-  Crie um arquivo chamado `.env` na raiz do projeto, e copie e cole o conteúdo de `.env.example` nele;
+  
+  Crie um arquivo chamado `.env` na raiz do projeto, e copie e cole o conteúdo de `.env.example` nele; dê os valores às variáveis;
 
-<br>
+<br><br>
 
 4. **Rodar o banco de dados local**
   No terminal, dentro da raiz do projeto, execute:
@@ -47,9 +48,17 @@ Para começar a contribuir neste projeto, é necessário que você clone este re
   docker compose up -d
   ```
 
-<br>
+<br><br>
 
-5. **Rodar o aplicativo**
+5. **Gerar SQL para criação das tabelas no banco de dados**
+
+  ```bash
+  npm run drizzle:migrate
+  ```
+
+<br><br>
+
+6. **Rodar o aplicativo**
 
   ```bash
   npm run start
@@ -61,9 +70,10 @@ Para começar a contribuir neste projeto, é necessário que você clone este re
   npm run start:dev
   ```
 
-<br>
+<br><br>
 
-5. **Rodar os testes**
+7. **Rodar os testes**
+  
   obs: execute quando quiser ver se os testes estão funcionando
 
   ```bash
@@ -76,6 +86,26 @@ Para começar a contribuir neste projeto, é necessário que você clone este re
   npm run test:cov
   ```
 
+  <br><br>
+
+8. **Quando você for encerrar tudo**
+  
+  parar a execução do servidor:
+  ```
+  ctrl + c
+  ```
+
+  Para remover o banco de dados totalmente (incluindo os dados)
+  ```bash
+  docker compose down 
+  ```
+
+  Para somente parar a execução do banco
+  ```bash
+  docker compose stop
+
+  # neste caso, na próxima vez que inicializar a aplicação use "docker compose start" em vez de "docker compose up"
+  ```
 
 <br><br>
 

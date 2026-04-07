@@ -21,7 +21,7 @@ async function bootstrap() {
 
     console.log('\n✅ O servidor foi iniciado com sucesso!\n');
     console.log(`E está disponível em: localhost:${serverPort}\n`);
-  } catch (error) {
+  } catch (error: any) {
     console.log('\n🔴 A inicialização do servidor falhou');
     console.log(`Detalhes: ${error?.message ?? error}\n`)
   }

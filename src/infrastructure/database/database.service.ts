@@ -10,8 +10,8 @@ import { ConfigService } from '@nestjs/config';
 export class DatabaseService implements OnModuleInit, OnModuleDestroy {
   constructor(private readonly configService: ConfigService) { }
 
-  private pool: Pool;
-  private drizzleClient: DrizzleClient;
+  private pool!: Pool;
+  private drizzleClient!: DrizzleClient;
 
   private createClient(databaseUrl: string) {
     this.pool = new Pool({
@@ -44,7 +44,7 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
     console.log('💤 Database connection closed');
   }
 
-  get db() {
+  get db(): DrizzleClient {
     return this.drizzleClient;
   }
 }

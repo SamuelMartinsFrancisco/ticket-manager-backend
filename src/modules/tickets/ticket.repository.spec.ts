@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { createDbClientMock, createFakeTicket } from 'src/utils/test/mocks';
+import { createDbClientMock, createFakeTicket } from '@/utils/test/mocks';
 import { TicketRepository } from './ticket.repository';
-import { DatabaseService } from 'src/infrastructure/database/database.service';
+import { DatabaseService } from '@/infrastructure/database/database.service';
 
 const ticketMock = createFakeTicket();
 let app: TestingModule;

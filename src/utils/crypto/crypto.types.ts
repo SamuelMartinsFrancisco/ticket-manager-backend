@@ -1,0 +1,1 @@
+export type RecordCryptoFields<T extends string> = Record<T, string>;
