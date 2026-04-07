@@ -71,23 +71,23 @@ export class CryptoService {
   }
 
   encryptMany<T extends string>(data: RecordCryptoFields<T>) {
-    const plainTextData = {};
-
-    Object.entries(data).forEach(([field, value]) => {
-      plainTextData[field] = this.encrypt(value as string);
-    });
-
-    return plainTextData as RecordCryptoFields<T>;
-  }
-
-  decryptMany<T extends string>(data: RecordCryptoFields<T>) {
     const encryptedData = {};
 
     Object.entries(data).forEach(([field, value]) => {
-      encryptedData[field] = this.decrypt(value as string);
+      encryptedData[field] = this.encrypt(value as string);
     });
 
     return encryptedData as RecordCryptoFields<T>;
+  }
+
+  decryptMany<T extends string>(data: RecordCryptoFields<T>) {
+    const decryptedData = {};
+
+    Object.entries(data).forEach(([field, value]) => {
+      decryptedData[field] = this.decrypt(value as string);
+    });
+
+    return decryptedData as RecordCryptoFields<T>;
   }
 
   generateBlindIndex(data: string) {
