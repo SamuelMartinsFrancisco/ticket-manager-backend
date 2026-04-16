@@ -20,4 +20,5 @@ export interface TicketDTO {
 };
 
 export type CreateTicketDTO =
-  Omit<TicketDTO, 'id' | 'createdAt' | 'updatedAt' | 'status' | 'priority'> & { status?: IssueStatus }
+  Pick<TicketDTO, 'title' | 'category' | 'impact' | 'urgency' | 'authorId'> &
+  Partial<Pick<TicketDTO, 'status' | 'description'>>

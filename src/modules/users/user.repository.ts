@@ -44,8 +44,8 @@ export class UserRepository {
   async create(newUser: CreateUserDTO): Promise<UserDTO> {
     const { name, lastName, email, ...rest } = newUser;
     const normalizedCryptoFields = {
-      name: name.trim().toLowerCase(),
-      lastName: lastName.trim().toLowerCase(),
+      name: name.trim(),
+      lastName: lastName.trim(),
       email: email.trim().toLowerCase(),
     }
 

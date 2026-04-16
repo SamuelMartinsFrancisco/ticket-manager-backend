@@ -3,14 +3,16 @@ import { LoginDTO, RegisterDTO } from './auth.dto';
 import { AuthService } from './auth.service';
 import { Public } from '@/core/guards/auth/public.decorator';
 import { handleException } from '@/utils/exceptionHandler';
+import { Roles } from '@/core/guards/rbac/roles.decorator';
+import { UserRole } from '../users/user.dto';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) { }
 
-  @Public()
-  @HttpCode(HttpStatus.OK)
   @Post('login')
+  @HttpCode(HttpStatus.OK)
+  @Public()
   async login(@Body() credentials: LoginDTO) {
     const { email, password } = credentials;
 
@@ -23,8 +25,9 @@ export class AuthController {
     }
   }
 
-  @HttpCode(HttpStatus.CREATED)
   @Post('register')
+  @HttpCode(HttpStatus.CREATED)
+  @Roles(UserRole.ADMIN)
   async register(@Body() account: Omit<RegisterDTO, | 'userId'>) {
     const { name, lastName, email, role, password } = account;
 
@@ -37,7 +40,7 @@ export class AuthController {
         password
       });
 
-      return result;
+      return { user: result };
     } catch (error: any) {
       handleException(error);
     }

@@ -5,6 +5,7 @@ import { errorMsg } from '@/constants';
 import { JwtService } from '@nestjs/jwt';
 import * as argon2 from 'argon2';
 import { RegisterDTO } from './auth.dto';
+import { TokenPayload } from './auth.types';
 
 @Injectable()
 export class AuthService {
@@ -14,7 +15,7 @@ export class AuthService {
     private readonly jwtService: JwtService
   ) { }
 
-  private async validateCredentials(userEmail: string, password: string) {
+  private async validateCredentials(userEmail: string, password: string): Promise<TokenPayload> {
     try {
       const user = await this.userService.findByEmail(userEmail);
       const isRightPassword = await this.credentialsService.validatePassword(
@@ -44,7 +45,7 @@ export class AuthService {
     const tokenPayload = await this.validateCredentials(email, password);
     const access_token = await this.jwtService.signAsync(tokenPayload);
 
-    return { access_token }
+    return { access_token };
   }
 
   async register(account: Omit<RegisterDTO, 'userId'>) {
