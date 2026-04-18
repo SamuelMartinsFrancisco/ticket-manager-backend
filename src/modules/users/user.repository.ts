@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable, NotFoundException, ConflictException } from "@nestjs/common";
 import { DatabaseService } from "@/infrastructure/database/database.service";
 import { usersTable } from "@/infrastructure/database/schema";
 import { eq } from "drizzle-orm";
@@ -52,22 +52,31 @@ export class UserRepository {
     const emailHash = this.cryptoService.generateBlindIndex(email);
     const encryptedFields = this.cryptoService.encryptMany<CryptoFields>(normalizedCryptoFields);
 
-    const [result] = await this.databaseService.db
-      .insert(usersTable)
-      .values({
-        id: randomUUID(),
-        emailIndex: emailHash,
-        ...encryptedFields,
-        ...rest,
-      })
-      .returning();
+    try {
+      const [result] = await this.databaseService.db
+        .insert(usersTable)
+        .values({
+          id: randomUUID(),
+          emailIndex: emailHash,
+          ...encryptedFields,
+          ...rest,
+        })
+        .returning();
 
-    const { emailIndex, ...createdUser } = result;
-    console.warn(createdUser);
+      const { emailIndex, ...createdUser } = result;
 
-    return {
-      ...createdUser,
-      ...normalizedCryptoFields,
-    };
+      return {
+        ...createdUser,
+        ...normalizedCryptoFields,
+      };
+    } catch (error: any) {
+      const errorDetails = error.cause;
+
+      if (errorDetails.code === '23505') {
+        throw new ConflictException();
+      }
+
+      throw error;
+    }
   }
 }

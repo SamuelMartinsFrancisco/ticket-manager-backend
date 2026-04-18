@@ -1,10 +1,11 @@
 import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
-import { LoginDTO, RegisterDTO } from './auth.dto';
+import { LoginDTO, LoginResponseDTO, RegisterDTOWithoutId } from './auth.dto';
 import { AuthService } from './auth.service';
 import { Public } from '@/core/guards/auth/public.decorator';
 import { handleException } from '@/utils/exceptionHandler';
 import { Roles } from '@/core/guards/rbac/roles.decorator';
 import { UserRole } from '../users/user.dto';
+import { LoginResponseDocs, RegisterResponseDocs } from './auth-swagger.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -13,7 +14,8 @@ export class AuthController {
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @Public()
-  async login(@Body() credentials: LoginDTO) {
+  @LoginResponseDocs()
+  async login(@Body() credentials: LoginDTO): Promise<LoginResponseDTO | undefined> {
     const { email, password } = credentials;
 
     try {
@@ -28,7 +30,8 @@ export class AuthController {
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
   @Roles(UserRole.ADMIN)
-  async register(@Body() account: Omit<RegisterDTO, | 'userId'>) {
+  @RegisterResponseDocs()
+  async register(@Body() account: RegisterDTOWithoutId) {
     const { name, lastName, email, role, password } = account;
 
     try {
