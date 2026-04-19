@@ -124,6 +124,7 @@ Para ver a documentação das APIs, acesse:
   ├── drizzle/                   // 💾 Migrations do Drizzle ORM
   │   └── meta/
   └── src/
+      ├── core/                  // 🏗️ Componentes essenciais do servidor (como guards de autenticação e controle de acesso)
       ├── infrastructure/        // 🏗️ Infraestrutura (banco, serviços externos)
       │   └── database/          // 💾 Configuração do banco de dados e definição de tabelas (schemas)
       │       └── schema/
