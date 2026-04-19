@@ -47,6 +47,31 @@ export const createUserRegisterDTO = (user?: UserDTO): Omit<RegisterDTO, 'userId
   }
 };
 
+export const createMockExecutionContext = () => {
+  const getRequestMock = jest.fn();
+
+  const contextMock = {
+    switchToHttp: jest.fn().mockReturnValue({
+      getRequest: getRequestMock,
+      getResponse: jest.fn(),
+      getNext: jest.fn(),
+    }),
+    switchToRpc: jest.fn(),
+    switchToWs: jest.fn(),
+    getType: jest.fn(),
+    getClass: jest.fn(),
+    getHandler: jest.fn(),
+    getArgs: jest.fn(),
+    getArgByIndex: jest.fn(),
+    getAllAndOverride: jest.fn(),
+  } as ExecutionContext;
+
+  return {
+    contextMock,
+    getRequestMock
+  };
+};
+
 export const createDbClientMock = () => {
   const insertFn = jest.fn();
   const valuesFn = jest.fn();
@@ -73,30 +98,5 @@ export const createDbClientMock = () => {
       valuesFn,
       returningFn,
     },
-  };
-};
-
-export const createMockExecutionContext = () => {
-  const getRequestMock = jest.fn();
-
-  const contextMock = {
-    switchToHttp: jest.fn().mockReturnValue({
-      getRequest: getRequestMock,
-      getResponse: jest.fn(),
-      getNext: jest.fn(),
-    }),
-    switchToRpc: jest.fn(),
-    switchToWs: jest.fn(),
-    getType: jest.fn(),
-    getClass: jest.fn(),
-    getHandler: jest.fn(),
-    getArgs: jest.fn(),
-    getArgByIndex: jest.fn(),
-    getAllAndOverride: jest.fn(),
-  } as ExecutionContext;
-
-  return {
-    contextMock,
-    getRequestMock
   };
 };

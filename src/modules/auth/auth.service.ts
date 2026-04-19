@@ -54,7 +54,7 @@ export class AuthService {
     const newUser = await this.userService.create(userData);
 
     await this.credentialsService.create({
-      userId: newUser.id,
+      userId: newUser!.id,
       password
     })
 

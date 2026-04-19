@@ -1,4 +1,4 @@
-import { InternalServerErrorException } from "@nestjs/common";
+import { ConflictException, InternalServerErrorException } from "@nestjs/common";
 import { errorMsg } from "@/constants";
 
 export const handleException = (error: any) => {
@@ -10,6 +10,19 @@ export const handleException = (error: any) => {
     case 409:
       throw error;
     default:
+      console.warn(error);
+      throw new InternalServerErrorException(errorMsg.UNKNOWN);
+  }
+}
+
+export const handleDatabaseException = (error: any) => {
+  const code = error.cause.code;
+
+  switch (code) {
+    case '23505':
+      throw new ConflictException();
+    default:
+      console.warn(error);
       throw new InternalServerErrorException(errorMsg.UNKNOWN);
   }
 }

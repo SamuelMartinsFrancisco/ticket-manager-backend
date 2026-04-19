@@ -1,9 +1,9 @@
 import { applyDecorators } from "@nestjs/common";
-import { commonCreationResponses } from "@/utils/docs/common-creation-swagger.decorator";
+import { commonCreationResponses } from "@/utils/docs/common-swagger.decorator";
 import { ApiConflictResponse, ApiCreatedResponse, ApiUnauthorizedResponse } from "@nestjs/swagger";
 import { LoginResponseDTO } from "./auth.dto";
 
-export function RegisterResponseDocs() {
+export const RegisterResponseDocs = () => {
   return applyDecorators(
     commonCreationResponses({
       created: { description: 'Usuário cadastrado com sucesso' },
@@ -12,7 +12,7 @@ export function RegisterResponseDocs() {
   )
 }
 
-export function LoginResponseDocs() {
+export const LoginResponseDocs = () => {
   return applyDecorators(
     ApiUnauthorizedResponse({ description: 'As credenciais fornecidas são inválidas' }),
     ApiCreatedResponse({ description: 'Autenticado com sucesso', type: LoginResponseDTO })

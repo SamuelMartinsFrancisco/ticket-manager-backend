@@ -5,6 +5,7 @@ import { eq } from "drizzle-orm";
 import { CreateUserDTO, UserDTO } from "./user.dto";
 import { CryptoService } from "@/utils/crypto/crypto.service";
 import { randomUUID } from "node:crypto";
+import { handleDatabaseException } from "@/utils/exceptionHandler";
 
 type CryptoFields = keyof Pick<UserDTO, 'name' | 'lastName' | 'email'>;
 
@@ -41,7 +42,7 @@ export class UserRepository {
     };
   }
 
-  async create(newUser: CreateUserDTO): Promise<UserDTO> {
+  async create(newUser: CreateUserDTO): Promise<UserDTO | undefined> {
     const { name, lastName, email, ...rest } = newUser;
     const normalizedCryptoFields = {
       name: name.trim(),
@@ -70,13 +71,8 @@ export class UserRepository {
         ...normalizedCryptoFields,
       };
     } catch (error: any) {
-      const errorDetails = error.cause;
-
-      if (errorDetails.code === '23505') {
-        throw new ConflictException();
-      }
-
-      throw error;
+      handleDatabaseException(error);
+      return;
     }
   }
 }

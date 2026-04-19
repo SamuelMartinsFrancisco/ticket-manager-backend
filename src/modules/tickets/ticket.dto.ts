@@ -1,3 +1,7 @@
+import { applyDecorators } from "@nestjs/common";
+import { ApiProperty, PickType } from "@nestjs/swagger";
+import { IsDateString, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, Max, Min } from "class-validator";
+
 export enum IssueStatus {
   NEW = 'Novo',                    // Unassigned/Untouched
   IN_PROGRESS = 'Em Progresso',    // Active work
@@ -5,20 +9,66 @@ export enum IssueStatus {
   SOLVED = 'Resolvido',            // Done
 };
 
-export interface TicketDTO {
-  id: number,
-  title: string,
-  description?: string | null,
-  authorId: string,
-  status: IssueStatus,
-  category: number,
-  impact: number,
-  urgency: number,
-  priority: number,
-  createdAt: string,
-  updatedAt?: string | null,
-};
+const TicketPriorityMetrics = () => {
+  return applyDecorators(
+    IsNumber(),
+    Min(0),
+    Max(3),
+  )
+}
 
-export type CreateTicketDTO =
-  Pick<TicketDTO, 'title' | 'category' | 'impact' | 'urgency' | 'authorId'> &
-  Partial<Pick<TicketDTO, 'status' | 'description'>>
+export class TicketDTO {
+  @IsNumber()
+  @ApiProperty()
+  id!: number;
+
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty()
+  title!: string;
+
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty({ type: 'string', nullable: true })
+  description?: string | null;
+
+  @IsUUID()
+  @ApiProperty()
+  authorId!: string;
+
+  @IsEnum(IssueStatus)
+  @ApiProperty()
+  status!: IssueStatus;
+
+  @IsNumber()
+  @ApiProperty()
+  category!: number;
+
+  @TicketPriorityMetrics()
+  @ApiProperty()
+  impact!: number;
+
+  @TicketPriorityMetrics()
+  @ApiProperty()
+  urgency!: number;
+
+  @IsNumber()
+  priority!: number;
+
+  @IsDateString()
+  @ApiProperty()
+  createdAt!: string;
+
+  @IsOptional()
+  @IsDateString()
+  @ApiProperty({ type: 'string', nullable: true })
+  updatedAt?: string | null;
+}
+
+export class CreateTicketDTO extends PickType(TicketDTO, ['title', 'category', 'impact', 'urgency', 'description', 'authorId']) {
+  @IsOptional()
+  @IsEnum(IssueStatus)
+  @ApiProperty()
+  status?: IssueStatus;
+}

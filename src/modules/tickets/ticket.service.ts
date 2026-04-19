@@ -6,6 +6,14 @@ import { TicketDTO, CreateTicketDTO, IssueStatus } from "./ticket.dto";
 export class TicketService {
   constructor(private readonly ticketRepository: TicketRepository) { }
 
+  async getOne(id: number): Promise<TicketDTO> {
+    return await this.ticketRepository.getOne(id);
+  }
+
+  async getAll(): Promise<TicketDTO[]> {
+    return await this.ticketRepository.getAll();
+  }
+
   async create(data: CreateTicketDTO): Promise<TicketDTO> {
     const newTicket = {
       ...data,

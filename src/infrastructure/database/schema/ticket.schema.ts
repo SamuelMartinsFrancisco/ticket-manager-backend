@@ -12,7 +12,7 @@ export const ticketsTable = pgTable('tickets', {
   ...timestamps,
   authorId: uuid('author_id').notNull().references(() => usersTable.id),
   category: integer().notNull().references(() => issueCategoriesTable.id),
-  id: integer().notNull().primaryKey().generatedAlwaysAsIdentity(),
+  id: integer().notNull().primaryKey().generatedAlwaysAsIdentity().unique(),
   title: text().notNull(),
   description: text(),
   status: pgStatusEnum('status').notNull(),
@@ -22,8 +22,8 @@ export const ticketsTable = pgTable('tickets', {
 });
 
 export const issueCategoriesTable = pgTable('issue_categories', {
-  id: integer().notNull().primaryKey().generatedAlwaysAsIdentity(),
-  label: text().notNull(),
+  id: integer().notNull().primaryKey().generatedAlwaysAsIdentity().unique(),
+  label: text().notNull().unique(),
   description: text(),
 });
 
