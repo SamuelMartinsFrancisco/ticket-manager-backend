@@ -20,6 +20,8 @@ const swaggerConfig = new DocumentBuilder()
   .setDescription('APIs do backend do aplicativo mobile Ticket Manager')
   .setVersion('1.0')
   .addTag('ticket-manager')
+  .addBearerAuth()
+  .addSecurityRequirements('bearer')
   .build();
 
 const swaggerOptions: SwaggerDocumentOptions = {

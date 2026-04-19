@@ -6,6 +6,7 @@ import { handleException } from '@/utils/exceptionHandler';
 import { Roles } from '@/core/guards/rbac/roles.decorator';
 import { UserRole } from '../users/user.dto';
 import { LoginResponseDocs, RegisterResponseDocs } from './auth-swagger.decorator';
+import { ApiSecurity } from '@nestjs/swagger';
 
 @Controller('auth')
 export class AuthController {
@@ -14,6 +15,7 @@ export class AuthController {
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @Public()
+  @ApiSecurity('')
   @LoginResponseDocs()
   async login(@Body() credentials: LoginDTO): Promise<LoginResponseDTO | undefined> {
     const { email, password } = credentials;
