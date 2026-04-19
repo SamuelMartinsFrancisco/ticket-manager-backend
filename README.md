@@ -111,6 +111,13 @@ Para começar a contribuir neste projeto, é necessário que você clone este re
 
 <br><br>
 
+9. **Documentação das APIs (Swagger)**
+
+Para ver a documentação das APIs, acesse: 
+- [localhost:3000/api](http://localhost:3000/api)
+
+<br><br>
+
 ## Estrutura do projeto
 
 ```
