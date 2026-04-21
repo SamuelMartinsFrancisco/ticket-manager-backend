@@ -7,6 +7,6 @@ import { DatabaseModule } from '@/infrastructure/database/database.module';
 @Module({
   imports: [CryptoModule, DatabaseModule],
   providers: [UserService, UserRepository],
-  exports: [UserService]
+  exports: [UserService, UserRepository]
 })
 export class UserModule { }

@@ -43,7 +43,6 @@ async function bootstrap() {
   const documentFactory = () => SwaggerModule.createDocument(app, swaggerConfig, swaggerOptions);
   SwaggerModule.setup('api', app, documentFactory);
 
-
   await app.init();
 
   const databaseService = app.get(DatabaseService);
