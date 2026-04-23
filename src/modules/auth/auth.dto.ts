@@ -1,12 +1,14 @@
 import { PickType, IntersectionType, OmitType, ApiProperty } from "@nestjs/swagger";
 import { CreateUserDTO } from "../users/user.dto";
 import { CreateCredentialDTO } from "./credentials/credentials.dto";
-import { IsJWT } from "class-validator";
+import { IsJWT, IsNotEmpty, IsString } from "class-validator";
 
-export class LoginDTO extends IntersectionType(
-  PickType(CreateUserDTO, ['email']),
-  PickType(CreateCredentialDTO, ['password'])
-) { }
+export class LoginDTO extends PickType(CreateUserDTO, ['email']) {
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty()
+  password!: string
+}
 
 export class LoginResponseDTO {
   @IsJWT()

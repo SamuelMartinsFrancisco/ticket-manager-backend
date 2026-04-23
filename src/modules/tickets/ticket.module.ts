@@ -9,7 +9,7 @@ import { IssueCategoryRepository } from './issue-category/issue-category.reposit
 
 @Module({
   imports: [DatabaseModule],
-  controllers: [TicketController, IssueCategoryController],
+  controllers: [IssueCategoryController, TicketController],
   providers: [TicketService, TicketRepository, IssueCategoryService, IssueCategoryRepository],
   exports: [TicketService]
 })

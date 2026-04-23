@@ -15,6 +15,13 @@
       "when": 1776627878933,
       "tag": "0001_green_rhodey",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1776912448858,
+      "tag": "0002_steady_demogoblin",
+      "breakpoints": true
     }
   ]
 }

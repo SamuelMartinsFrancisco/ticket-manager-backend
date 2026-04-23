@@ -1,12 +1,13 @@
-import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus, BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { LoginDTO, LoginResponseDTO, RegisterDTOWithoutId } from './auth.dto';
 import { AuthService } from './auth.service';
 import { Public } from '@/core/guards/auth/public.decorator';
 import { handleException } from '@/utils/exceptionHandler';
 import { Roles } from '@/core/guards/rbac/roles.decorator';
 import { UserRole } from '../users/user.dto';
-import { LoginResponseDocs, RegisterResponseDocs } from './auth-swagger.decorator';
+import { LoginDocs, RegisterDocs } from './auth-swagger.decorator';
 import { ApiSecurity } from '@nestjs/swagger';
+import { errorMsg } from '@/constants';
 
 @Controller('auth')
 export class AuthController {
@@ -16,23 +17,27 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Public()
   @ApiSecurity('')
-  @LoginResponseDocs()
-  async login(@Body() credentials: LoginDTO): Promise<LoginResponseDTO | undefined> {
+  @LoginDocs()
+  async login(@Body() credentials: LoginDTO) {
     const { email, password } = credentials;
 
     try {
-      const result = this.authService.login(email, password);
+      const result = await this.authService.login(email, password);
 
       return result;
     } catch (error: any) {
-      handleException(error);
+      if (error.status === 404) {
+        throw new UnauthorizedException(errorMsg.INVALID_CREDENTIALS);
+      }
+
+      handleException(error, {})
     }
   }
 
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
   @Roles(UserRole.ADMIN)
-  @RegisterResponseDocs()
+  @RegisterDocs()
   async register(@Body() account: RegisterDTOWithoutId) {
     const { name, lastName, email, role, password } = account;
 

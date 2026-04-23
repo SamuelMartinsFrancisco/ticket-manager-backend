@@ -1,37 +1,56 @@
-import { Controller, Post, Body, Get, HttpCode, HttpStatus } from '@nestjs/common';
-import { CreateIssueCategoryDTO } from './issue-category.dto';
+import { Controller, Post, Body, Get, HttpCode, HttpStatus, Param, ParseIntPipe } from '@nestjs/common';
+import { CreateIssueCategoryDTO, IssueCategoryDTO } from './issue-category.dto';
 import { IssueCategoryService } from './issue-category.service';
-import { CreateIssueCategoryResponseDocs, GetIssuesCategoriesResponseDocs } from './issue-category-swagger.decorator';
-import { ApiTags } from '@nestjs/swagger';
+import { CreateIssueCategoryDocs, GetIssueCategoryDocs, GetIssuesCategoriesDocs } from './issue-category-swagger.decorator';
+import { ApiParam, ApiTags } from '@nestjs/swagger';
+import { Roles } from '@/core/guards/rbac/roles.decorator';
+import { UserRole } from '@/modules/users/user.dto';
 
-const ISSUE_CATEGORY = 'category'
-
-@ApiTags('Ticket')
-@Controller('ticket')
+@ApiTags('Ticket Category')
+@Controller('ticket/category')
 export class IssueCategoryController {
   constructor(private readonly issueCategoryService: IssueCategoryService) { }
 
-  @Get(ISSUE_CATEGORY)
+  @Get()
   @HttpCode(HttpStatus.OK)
-  @GetIssuesCategoriesResponseDocs()
+  @GetIssuesCategoriesDocs()
   async getAll() {
-    return this.issueCategoryService.getAll();
+    return await this.issueCategoryService.getAll();
   }
 
-  @Post(ISSUE_CATEGORY)
+  @Get(':id')
+  @HttpCode(HttpStatus.OK)
+  @ApiParam({ name: 'id', description: 'O ID da categoria', example: 1 })
+  @GetIssueCategoryDocs()
+  async getOne(@Param('id', ParseIntPipe) id: number) {
+    return await this.issueCategoryService.getOne(id);
+  }
+
+  @Post()
   @HttpCode(HttpStatus.CREATED)
-  @CreateIssueCategoryResponseDocs()
+  @Roles(UserRole.ADMIN)
+  @CreateIssueCategoryDocs()
   async create(
-    @Body() dto: CreateIssueCategoryDTO
+    @Body() dto: CreateIssueCategoryDTO[]
   ) {
-    const { label, description } = dto;
+    const createdCategories: IssueCategoryDTO[] = [];
 
-    const newIssueCategory: CreateIssueCategoryDTO = { label };
+    for (const item of dto) {
+      const { label, description } = item;
 
-    if (description) {
-      newIssueCategory.description = description;
+      const newIssueCategory: CreateIssueCategoryDTO = { label };
+
+      if (description) {
+        newIssueCategory.description = description;
+      }
+
+      const result = await this.issueCategoryService.create(newIssueCategory);
+
+      if (result) {
+        createdCategories.push(result);
+      }
     }
 
-    return await this.issueCategoryService.create(newIssueCategory);
+    return createdCategories;
   }
 }

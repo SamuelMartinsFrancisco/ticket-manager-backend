@@ -1,19 +1,37 @@
-import { ConflictException, InternalServerErrorException } from "@nestjs/common";
+import { ConflictException, InternalServerErrorException, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { errorMsg } from "@/constants";
 
-export const handleException = (error: any) => {
+interface ErrorMessages {
+  unauthorized?: string,
+  notFound?: string,
+  conflict?: string,
+  badRequest?: string,
+  internalServerError?: string,
+};
+
+
+export const handleException = (error: any, messages?: ErrorMessages) => {
   const status = error.statusCode ?? error.status;
+  const defaultMessage = error.message;
 
   switch (status) {
     case 401:
-      if (error.message === errorMsg.INVALID_CREDENTIALS) throw error;
+      throw new UnauthorizedException(
+        messages?.unauthorized ?? defaultMessage
+      );
     case 404:
-      throw error;
+      throw new NotFoundException(
+        messages?.notFound ?? defaultMessage
+      );
     case 409:
-      throw error;
+      throw new ConflictException(
+        messages?.conflict ?? defaultMessage
+      );
     default:
       console.warn(error);
-      throw new InternalServerErrorException(errorMsg.UNKNOWN);
+      throw new InternalServerErrorException(
+        messages?.internalServerError ?? errorMsg.UNKNOWN
+      );
   }
 }
 

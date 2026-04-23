@@ -32,5 +32,5 @@ export const ticketsHistoryTable = pgTable('tickets_history', {
   assigned_to: uuid().references(() => usersTable.id),
   id: integer().notNull().primaryKey().generatedAlwaysAsIdentity(),
   status: text().notNull(),
-  timestamp: timestamp('timestamp', { mode: 'string' }),
+  timestamp: timestamp('timestamp', { mode: 'string' }).defaultNow().notNull(),
 });

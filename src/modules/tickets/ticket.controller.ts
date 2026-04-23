@@ -1,9 +1,9 @@
-import { Controller, Post, Body, Request, Get, HttpCode, HttpStatus, Param } from '@nestjs/common';
+import { Controller, Post, Body, Request, Get, HttpCode, HttpStatus, Param, ParseIntPipe } from '@nestjs/common';
 import { TicketService } from './ticket.service';
 import { CreateTicketDTO, TicketDTO } from './ticket.dto';
 import { RequestWithUser } from '../auth/auth.types';
-import { OmitType } from '@nestjs/swagger';
-import { CreateTicketResponseDocs, GetAllTicketsResponseDocs, GetOneTicketResponseDocs } from './ticket-swager.decorator';
+import { ApiParam, OmitType } from '@nestjs/swagger';
+import { CreateTicketDocs, GetAllTicketsDocs, GetOneTicketDocs } from './ticket-swager.decorator';
 import { handleException } from '@/utils/exceptionHandler';
 
 export class CreateTicketDTOWithoutUserId extends OmitType(CreateTicketDTO, ['authorId']) { };
@@ -12,21 +12,9 @@ export class CreateTicketDTOWithoutUserId extends OmitType(CreateTicketDTO, ['au
 export class TicketController {
   constructor(private readonly ticketService: TicketService) { }
 
-  @Get(':id')
-  @HttpCode(HttpStatus.OK)
-  @GetOneTicketResponseDocs()
-  async getOne(@Param() id: number) {
-    try {
-      return await this.ticketService.getOne(id);
-    } catch (error: any) {
-      handleException(error);
-      return;
-    }
-  }
-
   @Get()
   @HttpCode(HttpStatus.OK)
-  @GetAllTicketsResponseDocs()
+  @GetAllTicketsDocs()
   async getAll() {
     try {
       return await this.ticketService.getAll();
@@ -36,13 +24,26 @@ export class TicketController {
     }
   }
 
+  @Get(':id')
+  @HttpCode(HttpStatus.OK)
+  @GetOneTicketDocs()
+  @ApiParam({ name: 'id', description: 'O ID do chamado', example: 1 })
+  async getOne(@Param('id', ParseIntPipe) id: number) {
+    try {
+      return await this.ticketService.getOne(id);
+    } catch (error: any) {
+      handleException(error);
+      return;
+    }
+  }
+
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  @CreateTicketResponseDocs()
+  @CreateTicketDocs()
   async create(
     @Request() request: RequestWithUser,
     @Body() data: CreateTicketDTOWithoutUserId
-  ): Promise<TicketDTO> {
+  ) {
     const { user } = request;
     const { description, status, ...required } = data;
 

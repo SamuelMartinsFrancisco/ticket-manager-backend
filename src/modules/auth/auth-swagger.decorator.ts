@@ -1,10 +1,11 @@
 import { applyDecorators } from "@nestjs/common";
 import { commonCreationResponses } from "@/utils/docs/common-swagger.decorator";
-import { ApiConflictResponse, ApiCreatedResponse, ApiUnauthorizedResponse } from "@nestjs/swagger";
+import { ApiConflictResponse, ApiOkResponse, ApiOperation, ApiUnauthorizedResponse } from "@nestjs/swagger";
 import { LoginResponseDTO } from "./auth.dto";
 
-export const RegisterResponseDocs = () => {
+export const RegisterDocs = () => {
   return applyDecorators(
+    ApiOperation({ summary: 'Registrar novo usuário', operationId: 'registerUser' }),
     commonCreationResponses({
       created: { description: 'Usuário cadastrado com sucesso' },
     }),
@@ -12,9 +13,10 @@ export const RegisterResponseDocs = () => {
   )
 }
 
-export const LoginResponseDocs = () => {
+export const LoginDocs = () => {
   return applyDecorators(
+    ApiOperation({ summary: 'Realizar autenticação', operationId: 'login' }),
     ApiUnauthorizedResponse({ description: 'As credenciais fornecidas são inválidas' }),
-    ApiCreatedResponse({ description: 'Autenticado com sucesso', type: LoginResponseDTO })
+    ApiOkResponse({ description: 'Autenticado com sucesso', type: LoginResponseDTO })
   )
 }

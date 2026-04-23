@@ -7,7 +7,11 @@ export class IssueCategoryService {
   constructor(private readonly issueCategoryRepository: IssueCategoryRepository) { }
 
   async getAll(): Promise<IssueCategoryDTO[]> {
-    return this.issueCategoryRepository.getAll();
+    return await this.issueCategoryRepository.getAll();
+  }
+
+  async getOne(id: number): Promise<IssueCategoryDTO> {
+    return await this.issueCategoryRepository.getOne(id);
   }
 
   async create(newCategory: CreateIssueCategoryDTO): Promise<IssueCategoryDTO | undefined> {
