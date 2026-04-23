@@ -72,7 +72,16 @@ Para começar a contribuir neste projeto, é necessário que você clone este re
 
 <br><br>
 
-7. **Rodar os testes**
+7. **Criar o primeiro usuário (admin)**
+  Abra um novo terminal, e execute o comando abaixo:
+
+  ```bash
+  npm run drizzle:seed
+  ```
+
+<br><br>
+
+8. **Rodar os testes**
   
   obs: execute quando quiser ver se os testes estão funcionando
 
@@ -88,7 +97,7 @@ Para começar a contribuir neste projeto, é necessário que você clone este re
 
   <br><br>
 
-8. **Quando você for encerrar tudo**
+9. **Quando você for encerrar tudo**
   
   parar a execução do servidor:
   ```
@@ -111,7 +120,7 @@ Para começar a contribuir neste projeto, é necessário que você clone este re
 
 <br><br>
 
-9. **Documentação das APIs (Swagger)**
+10. **Documentação das APIs (Swagger)**
 
 Para ver a documentação das APIs, acesse: 
 - [localhost:3000/api](http://localhost:3000/api)
