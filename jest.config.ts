@@ -1,4 +1,13 @@
-module.exports = {
+import type { Config } from 'jest';
+
+const sharedIgnoredPaths = [
+  "<rootDir>/build/",
+  "<rootDir>/node_modules",
+  ".*\\.module\\.ts$",
+  ".*\\.decorator\\.ts$"
+];
+
+const config: Config = {
   testEnvironment: "node",
   moduleFileExtensions: ["js", "json", "ts"],
   rootDir: ".",
@@ -12,8 +21,16 @@ module.exports = {
   collectCoverageFrom: ["src/**/*.(t|j)s"],
   coverageDirectory: "./coverage",
   maxWorkers: 2,
-  testPathIgnorePatterns: [
-    "<rootDir>/build/",
-    "<rootDir>/node_modules"
-  ],
-};
+  testPathIgnorePatterns: [...sharedIgnoredPaths],
+  coveragePathIgnorePatterns: [...sharedIgnoredPaths],
+  coverageThreshold: {
+    global: {
+      branches: 80,
+      functions: 80,
+      lines: 80,
+      statements: 80,
+    }
+  }
+}
+
+export default config;
