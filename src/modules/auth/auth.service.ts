@@ -3,7 +3,6 @@ import { UserService } from '../users/user.service';
 import { CredentialsService } from './credentials/credentials.service';
 import { errorMsg } from '@/constants';
 import { JwtService } from '@nestjs/jwt';
-import * as argon2 from 'argon2';
 import { RegisterDTO } from './auth.dto';
 import { TokenPayload } from './auth.types';
 
@@ -32,7 +31,9 @@ export class AuthService {
         role: user.role,
       }
     } catch (error: any) {
-      switch (error.statusCode) {
+      const status = error.statusCode ?? error.status;
+
+      switch (status) {
         case 404:
           throw new UnauthorizedException(errorMsg.INVALID_CREDENTIALS);
         default:

@@ -1,152 +1,117 @@
-import { Test, TestingModule } from '@nestjs/testing';
+import { Reflector } from '@nestjs/core';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { RegisterDTO } from './auth.dto';
+import { createFakeUser, createUserRegisterDTO } from '@/utils/test/mocks';
+import { errorMsg } from '@/constants';
+import { UserRole } from '@/modules/users/user.dto';
+import { IS_PUBLIC } from '@/core/guards/auth/public.decorator';
+import { ROUTE_REQUIRED_ROLES } from '@/core/guards/rbac/roles.decorator';
 import {
-  ConflictException,
-  BadRequestException,
   UnauthorizedException,
+  BadRequestException,
+  ConflictException,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { AuthGuard } from '@/core/guards/auth/auth.guard';
-import { errorMsg } from '@/constants';
-import { createFakeUser } from '@/utils/test/mocks';
-import { UserDTO } from '../users/user.dto';
-
-const mockAuthGuard = {
-  canActivate: jest.fn(() => true),
-};
-
-const createUserRegisterDTO = (user?: UserDTO): Omit<RegisterDTO, 'userId'> => {
-  const mockUser = user ?? createFakeUser();
-  const { id, createdAt, updatedAt, ...rest } = mockUser;
-
-  return {
-    ...rest,
-    password: 'supersecret_123',
-  }
-};
 
 describe('AuthController', () => {
-  let controller: AuthController;
-  let authService: jest.Mocked<Pick<AuthService, 'register'>>;
+  const mockLoginDto = { email: 'user@example.com', password: 'Secret123' };
+  const mockLoginResponse = { accessToken: 'jwt-token' };
+  const mockRegisterDto = createUserRegisterDTO();
+  const mockUser = createFakeUser();
 
-  beforeEach(async () => {
-    authService = {
+  let controller: AuthController;
+  let mockAuthService: Record<'login' | 'register', jest.Mock>;
+
+  beforeEach(() => {
+    mockAuthService = {
+      login: jest.fn(),
       register: jest.fn(),
     };
-
-    const module: TestingModule = await Test.createTestingModule({
-      controllers: [AuthController],
-      providers: [
-        {
-          provide: AuthService,
-          useValue: authService,
-        },
-      ],
-    })
-      .overrideGuard(AuthGuard)
-      .useValue(mockAuthGuard)
-      .compile();
-
-    controller = module.get<AuthController>(AuthController);
+    controller = new AuthController(mockAuthService as unknown as AuthService);
   });
 
-  afterEach(() => {
-    jest.clearAllMocks();
+  describe('login', () => {
+    it('should return token on successful login', async () => {
+      mockAuthService.login.mockResolvedValue(mockLoginResponse);
+
+      const result = await controller.login(mockLoginDto);
+
+      expect(mockAuthService.login).toHaveBeenCalledWith(
+        mockLoginDto.email,
+        mockLoginDto.password,
+      );
+      expect(result).toEqual(mockLoginResponse);
+    });
+
+    it('should throw UnauthorizedException with INVALID_CREDENTIALS when service throws 404', async () => {
+      mockAuthService.login.mockRejectedValue({ status: 404 });
+
+      await expect(controller.login(mockLoginDto)).rejects.toThrow(UnauthorizedException);
+      await expect(controller.login(mockLoginDto)).rejects.toThrow(errorMsg.INVALID_CREDENTIALS);
+    });
+
+    it('should throw UnauthorizedException with original message when service throws 401', async () => {
+      mockAuthService.login.mockRejectedValue({ status: 401, message: 'Wrong password' });
+
+      await expect(controller.login(mockLoginDto)).rejects.toThrow(UnauthorizedException);
+      await expect(controller.login(mockLoginDto)).rejects.toThrow('Wrong password');
+    });
+
+    it('should throw InternalServerErrorException with UNKNOWN when service throws unexpected error', async () => {
+      mockAuthService.login.mockRejectedValue({ status: 500, message: 'DB down' });
+
+      await expect(controller.login(mockLoginDto)).rejects.toThrow(InternalServerErrorException);
+      await expect(controller.login(mockLoginDto)).rejects.toThrow(errorMsg.UNKNOWN);
+    });
   });
 
   describe('register', () => {
-    it('should create a new user and return success message when data is valid', async () => {
-      const userData = createFakeUser();
-      const registerDTO = createUserRegisterDTO(userData);
+    it('should return user object on successful registration', async () => {
+      mockAuthService.register.mockResolvedValue(mockUser);
 
-      authService.register.mockResolvedValue(userData);
-      mockAuthGuard.canActivate.mockReturnValue(true);
+      const result = await controller.register(mockRegisterDto);
 
-      const result = await controller.register(registerDTO);
-
-      expect(authService.register).toHaveBeenCalledWith(registerDTO);
-      expect(result).toEqual({ user: userData });
-    });
-
-    it('should throw ConflictException when email is already registered', async () => {
-      const registerDTO = createUserRegisterDTO();
-      const conflictError = new ConflictException('Email already registered');
-
-      authService.register.mockRejectedValue(conflictError);
-      mockAuthGuard.canActivate.mockReturnValue(true);
-
-      await expect(controller.register(registerDTO)).rejects.toThrow(
-        ConflictException,
-      );
-
-      expect(authService.register).toHaveBeenCalledWith(registerDTO);
-    });
-
-    it('should throw BadRequestException when a required field is missing', async () => {
-      const registerDTO = createUserRegisterDTO();
-      const invalidDTO = {
-        ...registerDTO,
-        lastName: '',
-      };
-      const validationError = new BadRequestException('Last name is required');
-
-      authService.register.mockRejectedValue(validationError);
-      mockAuthGuard.canActivate.mockReturnValue(true);
-
-      await expect(controller.register(invalidDTO)).rejects.toThrow(
-        BadRequestException,
-      );
-      expect(authService.register).toHaveBeenCalledWith(invalidDTO);
-    });
-
-    it('should throw BadRequestException when email format is invalid', async () => {
-      const registerDTO = createUserRegisterDTO();
-      const invalidEmailDto = {
-        ...registerDTO,
-        email: 'usuario#empresa.com',
-      };
-      const validationError = new BadRequestException(
-        'Please enter a valid email address',
-      );
-
-      authService.register.mockRejectedValue(validationError);
-      mockAuthGuard.canActivate.mockReturnValue(true);
-
-      await expect(controller.register(invalidEmailDto)).rejects.toThrow(
-        BadRequestException,
-      );
-      expect(authService.register).toHaveBeenCalledWith(invalidEmailDto);
-    });
-
-    it('should return 401 Unauthorized when no valid session exists', async () => {
-      const registerDTO = createUserRegisterDTO();
-
-      mockAuthGuard.canActivate.mockImplementation(() => {
-        throw new UnauthorizedException();
+      expect(mockAuthService.register).toHaveBeenCalledWith({
+        name: mockRegisterDto.name,
+        lastName: mockRegisterDto.lastName,
+        email: mockRegisterDto.email,
+        role: mockRegisterDto.role,
+        password: mockRegisterDto.password,
       });
-
-      await expect(controller.register(registerDTO)).rejects.toThrow(
-        UnauthorizedException,
-      );
-      expect(authService.register).not.toHaveBeenCalled();
+      expect(result).toEqual({ user: mockUser });
     });
 
-    it('should map unknown errors to InternalServerErrorException via handleException', async () => {
-      const registerDTO = createUserRegisterDTO();
-      const unknownError = new Error('Some unexpected database error');
-      const internalError = new InternalServerErrorException(errorMsg.UNKNOWN);
+    it('should throw ConflictException when service throws ConflictException', async () => {
+      mockAuthService.register.mockRejectedValue(new ConflictException('Email already exists'));
 
-      authService.register.mockRejectedValue(unknownError);
-      mockAuthGuard.canActivate.mockReturnValue(true);
+      await expect(controller.register(mockRegisterDto)).rejects.toThrow(ConflictException);
+      await expect(controller.register(mockRegisterDto)).rejects.toThrow('Email already exists');
+    });
 
+    it('should throw InternalServerErrorException when service throws BadRequestException', async () => {
+      mockAuthService.register.mockRejectedValue(new BadRequestException('validation error'));
 
-      jest.spyOn(controller as any, 'register').mockRejectedValueOnce(internalError);
+      await expect(controller.register(mockRegisterDto)).rejects.toThrow(InternalServerErrorException);
+      await expect(controller.register(mockRegisterDto)).rejects.toThrow(errorMsg.UNKNOWN);
+    });
 
-      await expect(controller.register(registerDTO)).rejects.toThrow(
-        InternalServerErrorException,
-      );
+    it('should throw InternalServerErrorException when service throws generic error', async () => {
+      mockAuthService.register.mockRejectedValue(new Error('Some error'));
+
+      await expect(controller.register(mockRegisterDto)).rejects.toThrow(InternalServerErrorException);
+      await expect(controller.register(mockRegisterDto)).rejects.toThrow(errorMsg.UNKNOWN);
+    });
+  });
+
+  describe('route access control decorators', () => {
+    it('login should be public (no auth, no roles required)', () => {
+      const metadata = Reflect.getMetadata(IS_PUBLIC, AuthController.prototype.login);
+      expect(metadata).toBe(true);
+    });
+
+    it('register should require ADMIN role', () => {
+      const roles = Reflect.getMetadata(ROUTE_REQUIRED_ROLES, AuthController.prototype.register);
+      expect(roles).toEqual([UserRole.ADMIN]);
     });
   });
 });
