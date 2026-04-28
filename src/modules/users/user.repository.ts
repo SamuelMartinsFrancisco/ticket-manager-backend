@@ -28,7 +28,7 @@ export class UserRepository {
 
     if (!result) throw new NotFoundException();
 
-    const { name, lastName, email, ...rest } = result;
+    const { name, lastName, email, emailIndex, ...rest } = result;
 
     const decryptedFields = this.cryptoService.decryptMany<CryptoFields>({
       name,
@@ -50,7 +50,7 @@ export class UserRepository {
       email: email.trim().toLowerCase(),
     }
 
-    const emailHash = this.cryptoService.generateBlindIndex(email);
+    const emailHash = this.cryptoService.generateBlindIndex(normalizedCryptoFields.email);
     const encryptedFields = this.cryptoService.encryptMany<CryptoFields>(normalizedCryptoFields);
 
     try {

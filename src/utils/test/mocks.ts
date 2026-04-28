@@ -71,32 +71,3 @@ export const createMockExecutionContext = () => {
     getRequestMock
   };
 };
-
-export const createDbClientMock = () => {
-  const insertFn = jest.fn();
-  const valuesFn = jest.fn();
-  const returningFn = jest.fn();
-
-  insertFn.mockReturnValue({
-    values: valuesFn,
-  });
-
-  valuesFn.mockReturnValue({
-    returning: returningFn,
-  });
-
-  returningFn.mockResolvedValue([createFakeTicket()]);
-
-  return {
-    dbClientMock: {
-      db: {
-        insert: insertFn,
-      }
-    },
-    spies: {
-      insertFn,
-      valuesFn,
-      returningFn,
-    },
-  };
-};

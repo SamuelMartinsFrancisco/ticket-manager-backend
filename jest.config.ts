@@ -2,9 +2,17 @@ import type { Config } from 'jest';
 
 const sharedIgnoredPaths = [
   "<rootDir>/build/",
-  "<rootDir>/node_modules",
+  "<rootDir>/node_modules/",
+  "<rootDir>/src/main.ts",
+  "<rootDir>/src/utils/test/",
   ".*\\.module\\.ts$",
-  ".*\\.decorator\\.ts$"
+  ".*\\.decorator\\.ts$",
+  ".*\\.schema\\.ts$",
+  ".*\\.dto\\.ts$",
+  "schema\\.ts$",
+  "index\\.ts$",
+  "<rootDir>/src/infrastructure/database/seeds/seed.ts",
+  "<rootDir>/src/infrastructure/database/shared-columns.ts",
 ];
 
 const config: Config = {

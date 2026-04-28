@@ -1,5 +1,5 @@
 import { applyDecorators } from "@nestjs/common";
-import { ApiProperty, PickType } from "@nestjs/swagger";
+import { ApiProperty, ApiPropertyOptional, PickType } from "@nestjs/swagger";
 import { IsDateString, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, Max, Min } from "class-validator";
 
 export enum IssueStatus {
@@ -30,7 +30,7 @@ export class TicketDTO {
   @IsOptional()
   @IsString()
   @IsNotEmpty()
-  @ApiProperty({ type: 'string', nullable: true })
+  @ApiPropertyOptional({ type: 'string', nullable: true })
   description?: string | null;
 
   @IsUUID()
@@ -69,6 +69,28 @@ export class TicketDTO {
 export class CreateTicketDTO extends PickType(TicketDTO, ['title', 'category', 'impact', 'urgency', 'description', 'authorId']) {
   @IsOptional()
   @IsEnum(IssueStatus)
-  @ApiProperty()
+  @ApiPropertyOptional({ type: 'string' })
   status?: IssueStatus;
+}
+
+export class TicketQueryFilters {
+  @IsOptional()
+  @IsUUID()
+  @ApiPropertyOptional({ type: 'string' })
+  ownerId?: string;
+
+  @IsOptional()
+  @IsUUID()
+  @ApiPropertyOptional({ type: 'string' })
+  assigneeId?: string;
+
+  @IsOptional()
+  @IsEnum(IssueStatus)
+  @ApiPropertyOptional({ type: 'string' })
+  status?: IssueStatus;
+
+  @IsOptional()
+  @IsNumber()
+  @ApiPropertyOptional({ type: 'string' })
+  category?: number;
 }

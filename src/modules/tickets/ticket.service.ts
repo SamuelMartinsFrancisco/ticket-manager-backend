@@ -1,8 +1,9 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { TicketRepository } from "./ticket.repository";
-import { TicketDTO, CreateTicketDTO, IssueStatus } from "./ticket.dto";
+import { TicketDTO, CreateTicketDTO, IssueStatus, TicketQueryFilters } from "./ticket.dto";
 import { IssueCategoryRepository } from "./issue-category/issue-category.repository";
 import { handleException } from "@/utils/exceptionHandler";
+import { TokenPayload } from "../auth/auth.types";
 
 @Injectable()
 export class TicketService {
@@ -15,8 +16,8 @@ export class TicketService {
     return await this.ticketRepository.getOne(id);
   }
 
-  async getAll(): Promise<TicketDTO[]> {
-    return await this.ticketRepository.getAll();
+  async getAll(filters: TicketQueryFilters, user: TokenPayload): Promise<TicketDTO[]> {
+    return await this.ticketRepository.getAll(filters, user);
   }
 
   async create(data: CreateTicketDTO): Promise<TicketDTO | undefined> {
@@ -32,7 +33,10 @@ export class TicketService {
 
       return result;
     } catch (error: any) {
-      const categoryNotFound = error.statusCode === 404 && error.message?.includes('category')
+      const categoryRegex = new RegExp('category', 'i');
+
+      const status = error.statusCode ?? error.status;
+      const categoryNotFound = status === 404 && categoryRegex.test(error?.message);
 
       if (categoryNotFound) {
         throw new BadRequestException('The category provided does not exists');

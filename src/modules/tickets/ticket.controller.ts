@@ -1,10 +1,22 @@
-import { Controller, Post, Body, Request, Get, HttpCode, HttpStatus, Param, ParseIntPipe } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Request,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  ParseIntPipe,
+  Query
+} from '@nestjs/common';
 import { TicketService } from './ticket.service';
-import { CreateTicketDTO, TicketDTO } from './ticket.dto';
+import { CreateTicketDTO, TicketQueryFilters } from './ticket.dto';
 import { RequestWithUser } from '../auth/auth.types';
 import { ApiParam, OmitType } from '@nestjs/swagger';
 import { CreateTicketDocs, GetAllTicketsDocs, GetOneTicketDocs } from './ticket-swager.decorator';
 import { handleException } from '@/utils/exceptionHandler';
+import { UserRole } from '../users/user.dto';
 
 export class CreateTicketDTOWithoutUserId extends OmitType(CreateTicketDTO, ['authorId']) { };
 
@@ -15,9 +27,14 @@ export class TicketController {
   @Get()
   @HttpCode(HttpStatus.OK)
   @GetAllTicketsDocs()
-  async getAll() {
+  async getAll(
+    @Query() filters: TicketQueryFilters,
+    @Request() request: RequestWithUser
+  ) {
+    const { user } = request;
+
     try {
-      return await this.ticketService.getAll();
+      return await this.ticketService.getAll(filters, user);
     } catch (error) {
       handleException(error);
       return;
