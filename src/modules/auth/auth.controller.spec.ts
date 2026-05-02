@@ -1,7 +1,6 @@
-import { Reflector } from '@nestjs/core';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { createFakeUser, createUserRegisterDTO } from '@/utils/test/mocks';
+import { createFakeUser, createUserRegisterDTO } from '@/utils/test/mocks/auth.mock';
 import { errorMsg } from '@/constants';
 import { UserRole } from '@/modules/users/user.dto';
 import { IS_PUBLIC } from '@/core/guards/auth/public.decorator';

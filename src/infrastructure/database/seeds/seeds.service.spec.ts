@@ -4,7 +4,7 @@ import { UserRepository } from '@/modules/users/user.repository';
 import { CredentialsRepository } from '@/modules/auth/credentials/credentials.repository';
 import { ConfigService } from '@nestjs/config';
 import { UserRole } from '@/modules/users/user.dto';
-import { createFakeUser } from '@/utils/test/mocks';
+import { createFakeUser } from '@/utils/test/mocks/auth.mock';
 
 const mockUserRepository = {
   create: jest.fn(),

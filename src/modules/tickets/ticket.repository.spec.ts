@@ -3,13 +3,11 @@ import { TicketRepository } from "./ticket.repository";
 import { DatabaseService } from "@/infrastructure/database/database.service";
 import { ticketsTable } from "@/infrastructure/database/schema";
 import { IssueStatus } from "./ticket.dto";
-import { TokenPayload } from "../auth/auth.types";
 import { UserRole } from "../users/user.dto";
 import {
   createFakeTicket,
-  createFakeTokenPayload,
-} from "@/utils/test/mocks";
-import { createDatabaseMock } from "@/utils/test/db-client-mock";
+} from "@/utils/test/mocks/ticket.mock";
+import { createDatabaseMock, createFakeTokenPayload } from "@/utils/test/mocks/commons.mock";
 import { desc, eq } from "drizzle-orm";
 
 describe("TicketRepository", () => {

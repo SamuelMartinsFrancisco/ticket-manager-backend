@@ -16,7 +16,6 @@ import { RequestWithUser } from '../auth/auth.types';
 import { ApiParam, OmitType } from '@nestjs/swagger';
 import { CreateTicketDocs, GetAllTicketsDocs, GetOneTicketDocs } from './ticket-swager.decorator';
 import { handleException } from '@/utils/exceptionHandler';
-import { UserRole } from '../users/user.dto';
 
 export class CreateTicketDTOWithoutUserId extends OmitType(CreateTicketDTO, ['authorId']) { };
 
@@ -80,6 +79,11 @@ export class TicketController {
       newTicket.status = status;
     }
 
-    return await this.ticketService.create(newTicket);
+    try {
+      return await this.ticketService.create(newTicket);
+    } catch (error) {
+      handleException(error);
+      return;
+    }
   }
 }

@@ -8,7 +8,8 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { createFakeUser, createUserRegisterDTO } from '@/utils/test/mocks';
+import { createFakeUser, createUserRegisterDTO } from '@/utils/test/mocks/auth.mock';
+
 
 const mockUserService = {
   create: jest.fn(),

@@ -9,7 +9,6 @@ interface ErrorMessages {
   internalServerError?: string,
 };
 
-
 export const handleException = (error: any, messages?: ErrorMessages) => {
   const status = error.statusCode ?? error.status;
   const defaultMessage = error.message;

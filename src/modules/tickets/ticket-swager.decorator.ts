@@ -4,6 +4,7 @@ import { ApiOkResponse, ApiOperation, ApiUnauthorizedResponse } from "@nestjs/sw
 import { unauthorizedDescription } from "@/utils/docs/common-swagger.decorator";
 import { TicketDTO } from "./ticket.dto";
 
+// Especificação da documentação
 export const CreateTicketDocs = () => {
   return applyDecorators(
     ApiOperation({ summary: 'Abrir novo chamado', operationId: 'createTicket' }),

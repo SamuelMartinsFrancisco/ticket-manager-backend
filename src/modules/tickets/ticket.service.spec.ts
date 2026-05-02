@@ -7,7 +7,8 @@ import { IssueCategoryRepository } from './issue-category/issue-category.reposit
 import { IssueStatus, CreateTicketDTO, TicketQueryFilters } from './ticket.dto';
 import { UserRole } from '../users/user.dto';
 import { errorMsg } from '@/constants';
-import { createFakeTicket, createFakeTokenPayload } from '@/utils/test/mocks';
+import { createFakeTicket } from '@/utils/test/mocks/ticket.mock';
+import { createFakeTokenPayload } from '@/utils/test/mocks/commons.mock';
 
 const mockTicketRepository = {
   create: jest.fn(),

@@ -3,7 +3,7 @@ import { UserRole } from '@/modules/users/user.dto';
 import { RolesGuard } from './roles.guard';
 import { ROUTE_REQUIRED_ROLES } from './roles.decorator';
 import { IS_PUBLIC } from '../auth/public.decorator';
-import { createFakeTokenPayload, createMockExecutionContext } from '@/utils/test/mocks';
+import { createFakeTokenPayload, createMockExecutionContext } from '@/utils/test/mocks/commons.mock';
 import { TokenPayload } from '@/modules/auth/auth.types';
 
 interface ContextSetup {

@@ -7,7 +7,7 @@ import {
   ConflictException,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { createDatabaseMock } from '@/utils/test/db-client-mock';
+import { createDatabaseMock } from '@/utils/test/mocks/commons.mock';
 import * as exceptionHandlerModule from '@/utils/exceptionHandler';
 
 jest.mock('@/utils/exceptionHandler', () => ({
