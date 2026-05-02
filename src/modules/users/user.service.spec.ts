@@ -65,11 +65,8 @@ describe('UserService', () => {
 
     it('should successfully create a new user', async () => {
       const createdUser: UserDTO = createFakeUser({
+        ...createUserDTO,
         id: 'new-user-id',
-        email: createUserDTO.email,
-        name: createUserDTO.name,
-        lastName: createUserDTO.lastName,
-        role: createUserDTO.role,
       });
       repository.create.mockResolvedValue(createdUser);
 
