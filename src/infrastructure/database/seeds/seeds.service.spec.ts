@@ -1,135 +1,233 @@
-import { InternalServerErrorException } from '@nestjs/common';
 import { SeedsService } from './seeds.service';
 import { UserRepository } from '@/modules/users/user.repository';
 import { CredentialsRepository } from '@/modules/auth/credentials/credentials.repository';
 import { ConfigService } from '@nestjs/config';
+import { NotFoundException, InternalServerErrorException } from '@nestjs/common';
 import { UserRole } from '@/modules/users/user.dto';
-import { createFakeUser } from '@/utils/test/mocks/auth.mock';
-
-const mockUserRepository = {
-  create: jest.fn(),
-};
-const mockCredentialsRepository = {
-  create: jest.fn(),
-};
-const mockConfigService = {
-  get: jest.fn(),
-};
 
 describe('SeedsService', () => {
   let service: SeedsService;
+  let userRepository: jest.Mocked<UserRepository>;
+  let credentialsRepository: jest.Mocked<CredentialsRepository>;
+  let configService: jest.Mocked<ConfigService>;
+  let consoleLogSpy: jest.SpyInstance;
+
+  const mockAdminEmail = 'admin@test.com';
+  const mockAdminPassword = 'supersecret';
+  const mockAdminName = 'Admin';
+  const mockAdminLastName = 'User';
+
+  const mockCreatedUser = {
+    id: 'admin-id-123',
+    name: mockAdminName,
+    lastName: mockAdminLastName,
+    email: mockAdminEmail,
+    role: UserRole.ADMIN,
+    createdAt: '2026-01-01T00:00:00.000Z',
+    updatedAt: null,
+  };
 
   beforeEach(() => {
-    jest.clearAllMocks();
-    service = new SeedsService(
-      mockUserRepository as unknown as UserRepository,
-      mockCredentialsRepository as unknown as CredentialsRepository,
-      mockConfigService as unknown as ConfigService,
-    );
+    userRepository = {
+      findByEmail: jest.fn(),
+      create: jest.fn(),
+    } as any;
+
+    credentialsRepository = {
+      create: jest.fn(),
+    } as any;
+
+    configService = {
+      get: jest.fn(),
+    } as any;
+
+    service = new SeedsService(userRepository, credentialsRepository, configService);
+
+    consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => { });
+  });
+
+  afterEach(() => {
+    consoleLogSpy.mockRestore();
   });
 
   describe('seed', () => {
-    const validEmail = 'admin@test.com';
-    const validPassword = 'securepass';
+    describe('when admin does not exist', () => {
+      beforeEach(() => {
+        configService.get.mockImplementation((key: string) => {
+          switch (key) {
+            case 'ADMIN_EMAIL':
+              return mockAdminEmail;
+            case 'ADMIN_PASSWORD':
+              return mockAdminPassword;
+            case 'ADMIN_NAME':
+              return mockAdminName;
+            case 'ADMIN_LASTNAME':
+              return mockAdminLastName;
+            default:
+              return undefined;
+          }
+        });
 
-    it('should create admin with credentials when all env vars are set', async () => {
-      const name = 'John';
-      const lastName = 'Doe';
-      mockConfigService.get.mockImplementation((key: string) => {
-        if (key === 'ADMIN_EMAIL') return validEmail;
-        if (key === 'ADMIN_PASSWORD') return validPassword;
-        if (key === 'ADMIN_NAME') return name;
-        if (key === 'ADMIN_LASTNAME') return lastName;
-        return undefined;
+        userRepository.findByEmail.mockRejectedValue(new NotFoundException());
+        userRepository.create.mockResolvedValue(mockCreatedUser);
+        credentialsRepository.create.mockResolvedValue(undefined);
       });
 
-      const adminUser = createFakeUser({
-        id: 'admin-id',
-        email: validEmail,
-        name,
-        lastName,
-        role: UserRole.ADMIN,
-      });
-      mockUserRepository.create.mockResolvedValue(adminUser);
-      mockCredentialsRepository.create.mockResolvedValue(undefined);
+      it('should create admin user and credentials', async () => {
+        await service.seed();
 
-      await service.seed();
-
-      expect(mockUserRepository.create).toHaveBeenCalledWith({
-        name,
-        lastName,
-        role: UserRole.ADMIN,
-        email: validEmail,
-      });
-      expect(mockCredentialsRepository.create).toHaveBeenCalledWith({
-        userId: adminUser.id,
-        password: validPassword,
-      });
-    });
-
-    it('should use default name and lastName when those env vars are missing', async () => {
-      mockConfigService.get.mockImplementation((key: string) => {
-        if (key === 'ADMIN_EMAIL') return validEmail;
-        if (key === 'ADMIN_PASSWORD') return validPassword;
-        return undefined;
-      });
-
-      const adminUser = createFakeUser({
-        id: 'admin-id',
-        email: validEmail,
-        name: 'Admin',
-        lastName: 'User',
-        role: UserRole.ADMIN,
-      });
-      mockUserRepository.create.mockResolvedValue(adminUser);
-      mockCredentialsRepository.create.mockResolvedValue(undefined);
-
-      await service.seed();
-
-      expect(mockUserRepository.create).toHaveBeenCalledWith({
-        name: 'Admin',
-        lastName: 'User',
-        role: UserRole.ADMIN,
-        email: validEmail,
+        expect(userRepository.findByEmail).toHaveBeenCalledWith(mockAdminEmail);
+        expect(userRepository.create).toHaveBeenCalledWith({
+          email: mockAdminEmail,
+          name: mockAdminName,
+          lastName: mockAdminLastName,
+          role: UserRole.ADMIN,
+        });
+        expect(credentialsRepository.create).toHaveBeenCalledWith({
+          userId: mockCreatedUser.id,
+          password: mockAdminPassword,
+        });
+        expect(consoleLogSpy).not.toHaveBeenCalledWith(
+          expect.stringContaining('Admin user already created'),
+        );
       });
     });
 
-    it('should throw InternalServerErrorException when ADMIN_EMAIL is not set', async () => {
-      mockConfigService.get.mockImplementation((key: string) => {
-        if (key === 'ADMIN_EMAIL') return undefined;
-        if (key === 'ADMIN_PASSWORD') return validPassword;
-        return undefined;
+    describe('when admin already exists', () => {
+      beforeEach(() => {
+        configService.get.mockImplementation((key: string) => {
+          if (key === 'ADMIN_EMAIL') return mockAdminEmail;
+          if (key === 'ADMIN_PASSWORD') return mockAdminPassword;
+          return undefined;
+        });
+
+        userRepository.findByEmail.mockResolvedValue(mockCreatedUser);
       });
 
-      await expect(service.seed()).rejects.toThrow(InternalServerErrorException);
-      expect(mockUserRepository.create).not.toHaveBeenCalled();
-      expect(mockCredentialsRepository.create).not.toHaveBeenCalled();
+      it('should skip seeding and log message', async () => {
+        await service.seed();
+
+        expect(userRepository.findByEmail).toHaveBeenCalledWith(mockAdminEmail);
+        expect(userRepository.create).not.toHaveBeenCalled();
+        expect(credentialsRepository.create).not.toHaveBeenCalled();
+        expect(consoleLogSpy).toHaveBeenCalledWith(
+          '> Admin user already created. Skipping seed...',
+        );
+      });
     });
 
-    it('should throw InternalServerErrorException when ADMIN_PASSWORD is not set', async () => {
-      mockConfigService.get.mockImplementation((key: string) => {
-        if (key === 'ADMIN_EMAIL') return validEmail;
-        if (key === 'ADMIN_PASSWORD') return undefined;
-        return undefined;
+    describe('when required environment variables are missing', () => {
+      const expectedError = new InternalServerErrorException(
+        'ADMIN_EMAIL and ADMIN_PASSWORD environmet variable must be set',
+      );
+
+      it('should throw if ADMIN_EMAIL is missing', async () => {
+        configService.get.mockImplementation((key: string) => {
+          if (key === 'ADMIN_PASSWORD') return mockAdminPassword;
+          return undefined;
+        });
+
+        await expect(service.seed()).rejects.toThrow(expectedError);
+        expect(userRepository.findByEmail).not.toHaveBeenCalled();
+        expect(userRepository.create).not.toHaveBeenCalled();
+        expect(credentialsRepository.create).not.toHaveBeenCalled();
       });
 
-      await expect(service.seed()).rejects.toThrow(InternalServerErrorException);
-      expect(mockUserRepository.create).not.toHaveBeenCalled();
-      expect(mockCredentialsRepository.create).not.toHaveBeenCalled();
+      it('should throw if ADMIN_PASSWORD is missing', async () => {
+        configService.get.mockImplementation((key: string) => {
+          if (key === 'ADMIN_EMAIL') return mockAdminEmail;
+          return undefined;
+        });
+
+        await expect(service.seed()).rejects.toThrow(expectedError);
+        expect(userRepository.findByEmail).not.toHaveBeenCalled();
+      });
+
+      it('should throw if both are missing', async () => {
+        configService.get.mockReturnValue(undefined);
+
+        await expect(service.seed()).rejects.toThrow(expectedError);
+        expect(userRepository.findByEmail).not.toHaveBeenCalled();
+      });
     });
 
-    it('should throw InternalServerErrorException when user creation returns falsy', async () => {
-      mockConfigService.get.mockImplementation((key: string) => {
-        if (key === 'ADMIN_EMAIL') return validEmail;
-        if (key === 'ADMIN_PASSWORD') return validPassword;
-        if (key === 'ADMIN_NAME') return 'A';
-        if (key === 'ADMIN_LASTNAME') return 'B';
-        return undefined;
-      });
-      mockUserRepository.create.mockResolvedValue(null);
+    describe('when userRepository.findByEmail throws an unexpected error', () => {
+      const dbError = new Error('Database connection lost');
 
-      await expect(service.seed()).rejects.toThrow(InternalServerErrorException);
-      expect(mockCredentialsRepository.create).not.toHaveBeenCalled();
+      beforeEach(() => {
+        configService.get.mockImplementation((key: string) => {
+          if (key === 'ADMIN_EMAIL') return mockAdminEmail;
+          if (key === 'ADMIN_PASSWORD') return mockAdminPassword;
+          return undefined;
+        });
+        userRepository.findByEmail.mockRejectedValue(dbError);
+      });
+
+      it('should propagate the error', async () => {
+        await expect(service.seed()).rejects.toThrow(dbError);
+
+        expect(userRepository.create).not.toHaveBeenCalled();
+        expect(credentialsRepository.create).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('when user creation fails', () => {
+      beforeEach(() => {
+        configService.get.mockImplementation((key: string) => {
+          switch (key) {
+            case 'ADMIN_EMAIL':
+              return mockAdminEmail;
+            case 'ADMIN_PASSWORD':
+              return mockAdminPassword;
+            case 'ADMIN_NAME':
+              return mockAdminName;
+            case 'ADMIN_LASTNAME':
+              return mockAdminLastName;
+            default:
+              return undefined;
+          }
+        });
+        userRepository.findByEmail.mockRejectedValue(new NotFoundException());
+        userRepository.create.mockResolvedValue(undefined);
+      });
+
+      it('should throw InternalServerErrorException with specific message', async () => {
+        await expect(service.seed()).rejects.toThrow(
+          new InternalServerErrorException('Admin seeding has failed'),
+        );
+        expect(credentialsRepository.create).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('when credentials creation fails', () => {
+      const credentialError = new Error('Constraint violation');
+
+      beforeEach(() => {
+        configService.get.mockImplementation((key: string) => {
+          switch (key) {
+            case 'ADMIN_EMAIL':
+              return mockAdminEmail;
+            case 'ADMIN_PASSWORD':
+              return mockAdminPassword;
+            case 'ADMIN_NAME':
+              return mockAdminName;
+            case 'ADMIN_LASTNAME':
+              return mockAdminLastName;
+            default:
+              return undefined;
+          }
+        });
+        userRepository.findByEmail.mockRejectedValue(new NotFoundException());
+        userRepository.create.mockResolvedValue(mockCreatedUser);
+        credentialsRepository.create.mockRejectedValue(credentialError);
+      });
+
+      it('should propagate the error from credentialsRepository', async () => {
+        await expect(service.seed()).rejects.toThrow(credentialError);
+
+        expect(userRepository.create).toHaveBeenCalled();
+        expect(credentialsRepository.create).toHaveBeenCalled();
+      });
     });
   });
 });
