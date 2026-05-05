@@ -4,6 +4,7 @@ import { AppModule } from './app.module';
 import { migrate } from 'drizzle-orm/node-postgres/migrator';
 import { DatabaseService } from './infrastructure/database/database.service';
 import { ValidationPipe } from '@nestjs/common';
+import { SeedsService } from './infrastructure/database/seeds/seeds.service';
 
 const logSuccess = (serverPort: number | string) => {
   console.log('\n✅ O servidor foi iniciado com sucesso!\n');
@@ -49,6 +50,11 @@ async function bootstrap() {
 
   await migrate(databaseService.db, {
     migrationsFolder: './drizzle'
+  })
+
+  const seedsService = app.get(SeedsService);
+  await seedsService.seed().catch((err) => {
+    console.error(err);
   })
 
   try {

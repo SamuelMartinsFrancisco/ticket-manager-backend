@@ -7,9 +7,7 @@ import { DatabaseModule } from '../database.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      expandVariables: true,
-    }),
+    ConfigModule,
     CredentialsModule,
     UserModule,
     DatabaseModule

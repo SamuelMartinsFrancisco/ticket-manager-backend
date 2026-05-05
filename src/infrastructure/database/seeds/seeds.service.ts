@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException } from "@nestjs/common";
+import { Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
 import { UserRepository } from "@/modules/users/user.repository";
 import { CredentialsRepository } from "@/modules/auth/credentials/credentials.repository";
 import { ConfigService } from "@nestjs/config";
@@ -14,7 +14,21 @@ export class SeedsService {
   ) { }
 
   async seed() {
-    await this.createAdmin();
+    const adminData = await this.getAdminData();
+
+    try {
+      await this.userRepository.findByEmail(adminData.email);
+
+      console.log('> Admin user already created. Skipping seed...');
+    } catch (error: any) {
+      if (error instanceof NotFoundException) {
+        await this.createAdmin(adminData);
+        return;
+      }
+
+      throw error;
+    }
+
   }
 
   private async getAdminData() {
@@ -38,10 +52,8 @@ export class SeedsService {
     return adminData;
   }
 
-  private async createAdmin() {
-    const adminData = await this.getAdminData();
-
-    const { password, ...createUserDTO } = adminData;
+  private async createAdmin(data: RegisterDTOWithoutId) {
+    const { password, ...createUserDTO } = data;
 
     const admin = await this.userRepository.create(createUserDTO);
 
