@@ -5,6 +5,8 @@ export default () => {
   const NOT_PROVIDED = '[not-provided]';
 
   const serverPort = process.env.SERVER_PORT;
+
+  // Secret files paths
   const blindIndexSecretFile = process.env.BLIND_INDEX_SECRET_FILE!;
   const encryptionSecretFile = process.env.ENCRYPTION_SECRET_FILE!
   const jwtSecretFile = process.env.JWT_SECRET_FILE!;
@@ -22,13 +24,13 @@ export default () => {
     DB_USER: process.env.DB_USER ?? NOT_PROVIDED,
     DB_PORT: process.env.DB_PORT ?? NOT_PROVIDED,
     DB_PASSWORD: getSecret(dbPasswordFile) ?? process.env.DB_PASSWORD,
-    // Server
-    SERVER_PORT: serverPort ? Number.parseInt(serverPort, 10) : 8080,
     // Admin
     ADMIN_EMAIL: process.env.ADMIN_EMAIL,
     ADMIN_NAME: process.env.ADMIN_NAME,
     ADMIN_LASTNAME: process.env.ADMIN_LASTNAME,
-    ADMIN_PASSWORD: getSecret(adminPasswordFile) ?? process.env.ADMIN_PASSWORD
+    ADMIN_PASSWORD: getSecret(adminPasswordFile) ?? process.env.ADMIN_PASSWORD,
+    // Server
+    SERVER_PORT: serverPort ? Number.parseInt(serverPort, 10) : 8080,
   };
 
   const finalConfig = {

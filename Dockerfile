@@ -1,4 +1,4 @@
-# syntax = docker/dockerfile:1.14
+# syntax = docker/dockerfile:1.2
 # ---------------------------------------------------------------------
 # Stage 1 – Build
 # ---------------------------------------------------------------------
@@ -16,17 +16,18 @@ COPY drizzle/ drizzle/
 
 RUN npm run build
 RUN npx -y tsc-alias -p tsconfig.json
-RUN npm prune --production
+RUN npm prune --omit=dev
 
 # ---------------------------------------------------------------------
 # Stage 2 – Production
 # ---------------------------------------------------------------------
 FROM node:24.14.0-alpine
 
-# The base image already has:
-# - a 'node' user (UID 1000)
-# - a 'node' group (GID 1000)
-# This group can read Render's /etc/secrets as required.
+# Install the shadow package to get usermod
+RUN apk add --no-cache shadow
+
+# Add the node user to the 1000 group (Render’s secret-reader group)
+RUN usermod -a -G 1000 node
 
 WORKDIR /app
 

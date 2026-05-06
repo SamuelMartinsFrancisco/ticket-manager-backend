@@ -37,7 +37,7 @@ describe('getSecret', () => {
     const result = getSecret('');
 
     expect(result).toBeUndefined();
-    expect(consoleWarnSpy).toHaveBeenCalledWith('getSecret called with empty key');
+    expect(consoleWarnSpy).toHaveBeenCalledWith('🟠 getSecret called with empty key');
     expect(existsSyncMock).not.toHaveBeenCalled();
     expect(readFileSyncMock).not.toHaveBeenCalled();
   });
@@ -46,7 +46,7 @@ describe('getSecret', () => {
     const result = getSecret(null as unknown as string);
 
     expect(result).toBeUndefined();
-    expect(consoleWarnSpy).toHaveBeenCalledWith('getSecret called with empty key');
+    expect(consoleWarnSpy).toHaveBeenCalledWith('🟠 getSecret called with empty key');
     expect(existsSyncMock).not.toHaveBeenCalled();
     expect(readFileSyncMock).not.toHaveBeenCalled();
   });
@@ -58,7 +58,7 @@ describe('getSecret', () => {
     const result = getSecret(path);
 
     expect(result).toBeUndefined();
-    expect(consoleWarnSpy).toHaveBeenCalledWith(`Secret file not found: ${path}`);
+    expect(consoleWarnSpy).toHaveBeenCalledWith(`🟠 Secret file not found: ${path}`);
     expect(consoleErrorSpy).not.toHaveBeenCalled();
   });
 
@@ -74,11 +74,11 @@ describe('getSecret', () => {
 
     expect(result).toBeUndefined();
     expect(consoleErrorSpy).toHaveBeenCalledWith(
-      `Error reading secret file ${path}:`,
+      `🔴 Error reading secret file ${path}:`,
       error
     );
     expect(consoleWarnSpy).not.toHaveBeenCalledWith(
-      `Secret file not found: ${path}`
+      `🟠 Secret file not found: ${path}`
     );
   });
 

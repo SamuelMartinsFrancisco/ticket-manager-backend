@@ -36,12 +36,16 @@ services:
       - jwt_secret
       - encryption_secret
       - blind_index_secret
+      - admin_password
     environment:
       SERVER_PORT: ${SERVER_PORT:-3000}
       DB_HOST: db
       DB_PORT: 5432
       DB_USER: ${DB_USER}
       DB_NAME: ${DB_NAME}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_NAME: ${ADMIN_NAME}
+      ADMIN_LASTNAME: ${ADMIN_LASTNAME}
       DB_PASSWORD_FILE: /run/secrets/db_password
       JWT_SECRET_FILE: /run/secrets/jwt_secret
       ENCRYPTION_SECRET_FILE: /run/secrets/encryption_secret
